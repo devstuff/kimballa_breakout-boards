@@ -19,3 +19,6 @@ _autosave-*
 ~$*
 *.swp
 ~*.lck
+
+# KiCad DRC report from so-8-fet/jb_panel/panelize.sh
+so-8-fet/jb_panel/out/drc.json

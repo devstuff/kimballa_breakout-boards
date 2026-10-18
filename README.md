@@ -28,19 +28,27 @@ There are a few subdirectories that each contain one or more breakout boards:
 * `sot-23` - Two panels of SOT-23-6 and SOT-23-8 breakouts
 * `qfn-20` - A non-panelized QFN-20 breakout board
 * `so-8-fet` - Panelized SO-8 / 5050 FET / Power-TDFN footprint for SMD power MOSFETs.
-  Uses NXP's "universal 5060 footprint" for maximum adaptability.
+  Uses NXP's "universal 5060 footprint" for maximum adaptability. Two panels: the original
+  8x8 mousebite panel in `so-8-fet/panelized`, and a 10x10 V-cut panel in `so-8-fet/jb_panel`.
 * `micromatch-20` - a separate (non-panelized) breakout for the MicroMaTcH 20 pin connector 
 
 All panels were created with KiKit. Each "base" directory contains Kicad project and PCB layout(s)
 for singleton breakout boards. Panelized PCBs are in a subdirectory called `out` or `panelized`.
 
-* The SOT-23 and SO-8-FET breakout boards were made using the KiKit GUI from the plugin. To regenerate, load the JSON config
+* The SOT-23 and original SO-8-FET breakout boards were made using the KiKit GUI from the plugin. To regenerate, load the JSON config
   file to load the appropriate settings, and identify the input kicad_pcb and target kicad_pcb files.
 * The SOIC / TSSOP and SOIC-DW breakout boards were made using the KiKit API. Each directory has a script
   called `panelize.py`. Open a KiCad Command Line terminal and run `python panelize.py` in the directory.
   The output will be generated in the `out/` subdirectory. The same `panelize.py` script in the `soic` 
   directory is used for generating SOIC or TSSOP panel, but some settings at the top of the script must
   be edited to switch from one to the other.
+* The SO-8-FET V-cut panel in `so-8-fet/jb_panel` is built from the command line by `panelize.sh`,
+  which reads its KiKit settings from `so-8-fet-vcut-panel.json` (also loadable in the KiKit GUI).
+  It writes the panel to `jb_panel/out/` and Gerbers plus an upload-ready `gerbers.zip` to
+  `jb_panel/rtm/`. Besides running KiKit, the script removes the "V-CUT" labels KiKit puts on
+  Edge.Cuts (they would enlarge the outline JLCPCB measures), refills zones, runs KiCad DRC
+  (the `invalid_outline` errors from V-cut lines on Edge.Cuts are expected), and checks the
+  panel is within 100x100mm. Set the KiCad and KiKit paths at the top of the script for your system.
 
 Gerber files are available in the `rtm/` subdirectory of each subproject. If multiple subdirectories exist
 within `rtm`, choose the highest-numbered version to get the latest Gerbers.
@@ -51,6 +59,10 @@ Ordering breakout panels
 Zip up the gerber (and .drl) files in a given rtm directory and upload it to JLCPCB.com. The panel size and "2 layers" 
 should be auto-selected. Choose "panel by customer", input the number of unique designs in the board file
 (3 for SOIC and TSSOP; 2 for SOIC-DW, 1 for SOT-23-6 and SOT-23-8), and the number of rows and columns.
+
+For the SO-8-FET V-cut panel, upload `so-8-fet/jb_panel/rtm/gerbers.zip` as-is and choose "panel by
+customer" with 1 design, 10 rows, 10 columns, and V-cut as the separation method. V-cuts appear as lines in
+JLCPCB's 2D layer view but not in its (or KiCad's) 3D view; that is expected.
 
 You should also probably select "remove order number", and your choice of HASL or HASL Lead-free surface
 finishing. (You could choose ENIG but it will be overkill, *unless you are ordering the QFN*, in which case
